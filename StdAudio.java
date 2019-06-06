@@ -21,7 +21,7 @@ import javax.sound.sampled.LineEvent;
 
 /**
  *  <i>Standard audio</i>. This class provides a basic capability for
- *  creating, reading, and saving audio. 
+ *  creating, reading, and saving audio.
  *  <p>
  *  The audio format uses a sampling rate of 44,100 Hz, 16-bit, monaural.
  *
@@ -59,7 +59,7 @@ public final class StdAudio {
     private StdAudio() {
         // can not instantiate
     }
-   
+
     // static initializer
     static {
         init();
@@ -74,7 +74,7 @@ public final class StdAudio {
 
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(format, SAMPLE_BUFFER_SIZE * BYTES_PER_SAMPLE);
-            
+
             // the internal buffer is a fraction of the actual buffer size, this choice is arbitrary
             // it gets divided because we can't expect the buffered data to line up exactly with when
             // the sound card decides to push out its samples.
@@ -133,7 +133,7 @@ public final class StdAudio {
         line.drain();
         line.stop();
     }
-    
+
     /**
      * Writes one sample (between -1.0 and +1.0) to standard audio.
      * If the sample is outside the range, it will be clipped.
@@ -153,7 +153,7 @@ public final class StdAudio {
         buffer[bufferSize++] = (byte) s;
         buffer[bufferSize++] = (byte) (s >> 8);   // little endian
 
-        // send to sound card if buffer is full        
+        // send to sound card if buffer is full
         if (bufferSize >= buffer.length) {
             line.write(buffer, 0, buffer.length);
             bufferSize = 0;
@@ -214,7 +214,7 @@ public final class StdAudio {
             bytes = new byte[bytesToRead];
             int bytesRead = ais.read(bytes);
             if (bytesToRead != bytesRead) {
-                throw new IllegalStateException("read only " + bytesRead + " of " + bytesToRead + " bytes"); 
+                throw new IllegalStateException("read only " + bytesRead + " of " + bytesToRead + " bytes");
             }
         }
         catch (IOException ioe) {
@@ -228,7 +228,7 @@ public final class StdAudio {
             double[] data = new double[n/2];
             for (int i = 0; i < n/2; i++) {
                 // little endian, mono
-                data[i] = ((short) (((bytes[2*i+1] & 0xFF) << 8) | (bytes[2*i] & 0xFF))) / ((double) MAX_16_BIT);
+                data[i] = ((short) (((bytes[2*i+1] & 0xFF) << 8) | (bytes[2*i] & 0xFF))) / (MAX_16_BIT);
             }
             return data;
         }
@@ -237,8 +237,8 @@ public final class StdAudio {
         else if (audioFormat.getChannels() == STEREO) {
             double[] data = new double[n/4];
             for (int i = 0; i < n/4; i++) {
-                double left  = ((short) (((bytes[4*i+1] & 0xFF) << 8) | (bytes[4*i + 0] & 0xFF))) / ((double) MAX_16_BIT);
-                double right = ((short) (((bytes[4*i+3] & 0xFF) << 8) | (bytes[4*i + 2] & 0xFF))) / ((double) MAX_16_BIT);
+                double left  = ((short) (((bytes[4*i+1] & 0xFF) << 8) | (bytes[4*i + 0] & 0xFF))) / (MAX_16_BIT);
+                double right = ((short) (((bytes[4*i+3] & 0xFF) << 8) | (bytes[4*i + 2] & 0xFF))) / (MAX_16_BIT);
                 data[i] = (left + right) / 2.0;
             }
             return data;
@@ -414,13 +414,13 @@ public final class StdAudio {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        
+
         // 440 Hz for 1 sec
         double freq = 440.0;
         for (int i = 0; i <= StdAudio.SAMPLE_RATE; i++) {
             StdAudio.play(0.5 * Math.sin(2*Math.PI * freq * i / StdAudio.SAMPLE_RATE));
         }
-        
+
         // scale increments
         int[] steps = { 0, 2, 4, 5, 7, 9, 11, 12 };
         for (int i = 0; i < steps.length; i++) {
@@ -431,6 +431,6 @@ public final class StdAudio {
 
         // need to call this in non-interactive stuff so the program doesn't terminate
         // until all the sound leaves the speaker.
-        StdAudio.close(); 
+        StdAudio.close();
     }
 }
