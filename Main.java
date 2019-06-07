@@ -4,13 +4,16 @@ import java.util.Scanner;
 import java.util.stream.Stream;
 
 public class Main {
-
+	/*
+	TODO:	seperate out std audio class
+				utilize interfaces to pass functions as parameters
+	*/
 	public static final double DEFAULT_FREQ = 440;
 	public static final double DEFAULT_DURATION = .0625;
 
 	public static void main(String[] args) {
 
-		generateNotes("qudratic");
+		generateNotes("qudratic");https://github.com/rahulsanjay18/ChessInC.git
 		System.out.println("finished.");
 
 	}
@@ -22,18 +25,18 @@ public class Main {
 	// could probably turn this into a struct
 	public void generateNotes(String filename, double hz, double duration){
 
-		Double[] generatedNotes = createNotesArray(Summands::quadraticSummand, hz, duration);
+		Double[] generatedNotes = createNotesArray(hz, duration);
 		double[] primitiveTypeNotes = convertDoubleObjToPrimitive(generatedNotes);
 
 		StdAudio.save("graph_samples/" + filename + ".wav", primitiveTypeNotes);
 	}
 
-	public Object[] createNotesArray(Runnable toRun, double hz, double duration){
+	public Object[] createNotesArray(double hz, double duration){
 		Double[] a = tone(hz, duration);
 		ArrayList<Double> notes = new ArrayList<>();
 
 		for (int i = 1; i <= 100; i++){
-			hz = hz + toRun.run();
+			hz = hz + Summand.quadraticSummand(i);
 			a = tone(hz, duration);
 			Collections.addAll(notes, a);
 		}
