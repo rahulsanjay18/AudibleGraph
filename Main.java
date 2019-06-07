@@ -2,50 +2,47 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 import java.util.stream.Stream;
-import Summands;
 
 public class Main {
 
-	// create a pure tone of the given frequency for the given duration
-	public static Double[] tone(double hz, double duration) {
-		int n = (int) (StdAudio.SAMPLE_RATE * duration);
-		Double[] a = new Double[n+1];
-		for (int i = 0; i <= n; i++) {
-			a[i] = Math.sin(2 * Math.PI * i * hz / StdAudio.SAMPLE_RATE);
-		}
-		return a;
-	}
-
+	public static final double DEFAULT_FREQ = 440;
+	public static final double DEFAULT_DURATION = .0625;
 
 	public static void main(String[] args) {
 
-		generateNotes("qudratic.wav");
+		generateNotes("qudratic");
 		System.out.println("finished.");
 
 	}
 
 	public void generateNotes(String filename){
-		generateNotes(filename, 440, .0625);
+		generateNotes(filename, DEFAULT_FREQ, DEFAULT_DURATION);
 	}
 
+	// could probably turn this into a struct
 	public void generateNotes(String filename, double hz, double duration){
-		Double[] a= tone(hz, duration);
 
+		Double[] generatedNotes = createNotesArray(Summands::quadraticSummand, hz, duration);
+		double[] primitiveTypeNotes = convertDoubleObjToPrimitive(generatedNotes);
+
+		StdAudio.save("graph_samples/" + filename + ".wav", primitiveTypeNotes);
+	}
+
+	public Object[] createNotesArray(Runnable toRun, double hz, double duration){
+		Double[] a = tone(hz, duration);
 		ArrayList<Double> notes = new ArrayList<>();
 
 		for (int i = 1; i <= 100; i++){
-			hz += quadraticSummand(i);
+			hz = hz + toRun.run();
 			a = tone(hz, duration);
 			Collections.addAll(notes, a);
 		}
 
-		double[] newNotes = Stream.of(notes.toArray(a)).mapToDouble(Double::doubleValue).toArray();
-		//StdAudio.play(newNotes);
-		StdAudio.save("graph_samples/" + filename + ".wav", newNotes);
+		return notes.toArray();
 	}
 
-	public Double[] createNotesArray(Runnable toRun){
-		// insert
+	public double[] convertDoubleObjToPrimitive(Double[] arr){
+		return Stream.of(arr).mapToDouble(Double::doubleValue).toArray();
 	}
 
 	public void calibrate(double hz, Double[] a, double duration){
@@ -71,4 +68,13 @@ public class Main {
 		scanner.close();
 	}
 
+	// create a pure tone of the given frequency for the given duration
+	public static Double[] tone(double hz, double duration) {
+		int n = (int) (StdAudio.SAMPLE_RATE * duration);
+		Double[] a = new Double[n+1];
+		for (int i = 0; i <= n; i++) {
+			a[i] = Math.sin(2 * Math.PI * i * hz / StdAudio.SAMPLE_RATE);
+		}
+		return a;
+	}
 }
