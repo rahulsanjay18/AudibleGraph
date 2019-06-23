@@ -12,7 +12,7 @@ public class Note{
   }
 
   // create a pure createTone of the given frequency for the given duration
-  public double[] createTone(double hz, double duration) {
+  private double[] createTone(double hz, double duration) {
     int n = (int) (StdAudio.SAMPLE_RATE * duration);
     double[] a = new double[n+1];
     for (int i = 0; i <= n; i++) {
