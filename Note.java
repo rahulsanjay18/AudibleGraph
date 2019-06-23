@@ -1,34 +1,38 @@
 public class Note{
-  public double toneFrequency;
-  public double duration;
+  private double[] tone;
+  public static final double DEFAULT_FREQ = 55;
+  public static final double DEFAULT_DURATION = .0625;
+
+  public Note(){
+      this(DEFAULT_FREQ, DEFAULT_DURATION);
+  }
 
   public Note(double hz, double s){
-    this.toneFrequency = hz;
-    this.duration = s;
+    this.tone = createTone(hz, s);
   }
 
-  /**
-   * Writes one sample (between -1.0 and +1.0) to standard audio.
-   * If the sample is outside the range, it will be clipped.
-   *
-   * @param  a the sample to play
-   * @throws IllegalArgumentException if the sample is {@code Double.NaN}
-   */
-  public static void playSingleNote(double a) {
+  // create a pure createTone of the given frequency for the given duration
+  public double[] createTone(double hz, double duration) {
+    int n = (int) (StdAudio.SAMPLE_RATE * duration);
+    double[] a = new double[n+1];
+    for (int i = 0; i <= n; i++) {
+      a[i] = Math.sin(2 * Math.PI * i * hz / StdAudio.SAMPLE_RATE);
+    }
+    return a;
+  }
 
-      // clip if outside [-1, +1]
-      if (a < -1.0) a = -1.0;
-      if (a > +1.0) a = +1.0;
-
-      // convert to bytes
-      short s = (short) (MAX_16_BIT * a);
-      buffer[bufferSize++] = (byte) s;
-      buffer[bufferSize++] = (byte) (s >> 8);   // little endian
-
-      // send to sound card if buffer is full
-      if (bufferSize >= buffer.length) {
-          line.write(buffer, 0, buffer.length);
-          bufferSize = 0;
+  public void play(){
+      for(double a : tone){
+          StdAudio.play(a);
       }
   }
+
+  public long getNoteLength(){
+      return tone.length;
+  }
+
+  public double[] getTone(){
+      return tone;
+  }
+
 }

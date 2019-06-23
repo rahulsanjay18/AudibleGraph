@@ -47,9 +47,7 @@ public final class StdAudio {
     private static final int MONO   = 1;
     private static final int STEREO = 2;
     private static final boolean LITTLE_ENDIAN = false;
-    private static final boolean BIG_ENDIAN    = true;
     private static final boolean SIGNED        = true;
-    private static final boolean UNSIGNED      = false;
 
 
     private static SourceDataLine line;   // to play the sound
@@ -161,21 +159,6 @@ public final class StdAudio {
     }
 
     /**
-     * Writes the array of samples (between -1.0 and +1.0) to standard audio.
-     * If a sample is outside the range, it will be clipped.
-     *
-     * @param  samples the array of samples to play
-     * @throws IllegalArgumentException if any sample is {@code Double.NaN}
-     * @throws IllegalArgumentException if {@code samples} is {@code null}
-     */
-    public static void play(double[] samples) {
-        if (samples == null) throw new IllegalArgumentException("argument to play() is null");
-        for (int i = 0; i < samples.length; i++) {
-            play(samples[i]);
-        }
-    }
-
-    /**
      * Reads audio samples from a file (in .wav or .au format) and returns
      * them as a double array with values between -1.0 and +1.0.
      * The audio file must be 16-bit with a sampling rate of 44,100.
@@ -237,7 +220,7 @@ public final class StdAudio {
         else if (audioFormat.getChannels() == STEREO) {
             double[] data = new double[n/4];
             for (int i = 0; i < n/4; i++) {
-                double left  = ((short) (((bytes[4*i+1] & 0xFF) << 8) | (bytes[4*i + 0] & 0xFF))) / (MAX_16_BIT);
+                double left  = ((short) (((bytes[4*i+1] & 0xFF) << 8) | (bytes[4*i] & 0xFF))) / (MAX_16_BIT);
                 double right = ((short) (((bytes[4*i+3] & 0xFF) << 8) | (bytes[4*i + 2] & 0xFF))) / (MAX_16_BIT);
                 data[i] = (left + right) / 2.0;
             }
@@ -273,7 +256,7 @@ public final class StdAudio {
         byte[] data = new byte[2 * samples.length];
         for (int i = 0; i < samples.length; i++) {
             int temp = (short) (samples[i] * MAX_16_BIT);
-            data[2*i + 0] = (byte) temp;
+            data[2*i] = (byte) temp;
             data[2*i + 1] = (byte) (temp >> 8);   // little endian
         }
 
@@ -335,10 +318,7 @@ public final class StdAudio {
                 line.write(samples, 0, count);
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (LineUnavailableException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
         finally {
@@ -366,10 +346,7 @@ public final class StdAudio {
             clip.open(ais);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
-        catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (Exception e){
             e.printStackTrace();
         }
 
@@ -388,49 +365,4 @@ public final class StdAudio {
         }).start();
     }
 
-
-   /***************************************************************************
-    * Unit tests {@code StdAudio}.
-    ***************************************************************************/
-
-    // create a note (sine wave) of the given frequency (Hz), for the given
-    // duration (seconds) scaled to the given volume (amplitude)
-    private static double[] note(double hz, double duration, double amplitude) {
-        int n = (int) (StdAudio.SAMPLE_RATE * duration);
-        double[] a = new double[n+1];
-        for (int i = 0; i <= n; i++)
-            a[i] = amplitude * Math.sin(2 * Math.PI * i * hz / StdAudio.SAMPLE_RATE);
-        return a;
-    }
-
-    /**
-     * Test client - play an A major scale to standard audio.
-     *
-     * @param args the command-line arguments
-     */
-    /**
-     * Test client - play an A major scale to standard audio.
-     *
-     * @param args the command-line arguments
-     */
-    public static void main(String[] args) {
-
-        // 440 Hz for 1 sec
-        double freq = 440.0;
-        for (int i = 0; i <= StdAudio.SAMPLE_RATE; i++) {
-            StdAudio.play(0.5 * Math.sin(2*Math.PI * freq * i / StdAudio.SAMPLE_RATE));
-        }
-
-        // scale increments
-        int[] steps = { 0, 2, 4, 5, 7, 9, 11, 12 };
-        for (int i = 0; i < steps.length; i++) {
-            double hz = 440.0 * Math.pow(2, steps[i] / 12.0);
-            StdAudio.play(note(hz, 1.0, 0.5));
-        }
-
-
-        // need to call this in non-interactive stuff so the program doesn't terminate
-        // until all the sound leaves the speaker.
-        StdAudio.close();
-    }
 }
