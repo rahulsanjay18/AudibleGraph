@@ -9,8 +9,8 @@ class MusicSheet{
 
   MusicSheet(double[] freq, double[] durations){
 	  this();
-      
-      if(freq.length != durations.length){
+
+    if(freq.length != durations.length){
 		  throw new IllegalArgumentException("IllegalArgumentException: freq array and durations array are not the same length");
 	  }
 

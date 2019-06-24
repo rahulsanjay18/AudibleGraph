@@ -1,6 +1,6 @@
 public class Note{
   private double[] tone;
-  public static final double DEFAULT_FREQ = 55;
+  public static final double DEFAULT_FREQ = 440;
   public static final double DEFAULT_DURATION = .0625;
 
   public Note(){

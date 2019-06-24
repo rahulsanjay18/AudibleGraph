@@ -35,4 +35,8 @@ public class NoteGenerator {
         return linearNote(1);
     }
 
+    public static double constant(){
+      return 0;
+    }
+
 }
