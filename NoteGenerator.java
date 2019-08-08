@@ -1,13 +1,52 @@
+import java.util.ArrayList;
+
 public class NoteGenerator {
 
+    static double[] bernoulliNumbers = {1, .5, 1.0/6.0, 0, -1.0/30.0, 0, 1.0/42, 5.0/66};
 
-    static double getNoteOfFunction(char c, double constant, int i){
-        switch (c){
-            case '1': return linearNote(constant);
-            case '2': return quadraticNote(constant, i);
+
+    static double getPolynomialNote(int p, int n){
+        int sumOfExp = getSumOfExp(p, n);
+
+        double sumWithBernoulli = getSumWithBernoulli(p, n);
+
+        double division = Math.pow(n, p+1) / (p + 1);
+
+        return 2 * (sumOfExp - (division + sumWithBernoulli));
     }
 
-        return 0;
+    static int getSumOfExp(int p, int n){
+        int sum = 0;
+
+        for(int i = 1; i <= n; i++){
+            sum += Math.pow(i, p);
+        }
+
+        return sum;
+    }
+
+    static double getSumWithBernoulli(int p, int n){
+        double sum = 0;
+        int factP = getFactorial(p);
+        for(int k = 2; k <= p; k++){
+            double bernoulliDivFactorial = bernoulliNumbers[k] / getFactorial(k);
+            double fallingFact = ((double) factP) / getFactorial(p - k + 1);
+            double power = Math.pow(n, p - k + 1);
+
+            sum += bernoulliDivFactorial * fallingFact * power;
+        }
+
+        return sum;
+    }
+
+    static int getFactorial(int n){
+        int product = 1;
+
+        for(int i = 2; i <= n; i++){
+            product *= i;
+        }
+
+        return product;
     }
 
     static double getNoteOfFunction(char c, int i){
